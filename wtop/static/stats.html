@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>System Monitor</title>
+    <style>
+        /* General styles */
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: monospace;
+            font-size: 12px;
+            /* display: flex; */
+            /* Use flexbox to split the page in half */
+            height: 100vh;
+            /* Use viewport height to ensure the page fills the screen */
+            margin: 0;
+        }
+
+        #utilization {
+            padding: 10px;
+            border: 1px solid #555;
+            /* width: 50%; */
+            display: flex;
+            box-sizing: border-box;
+            height: fit-content;
+            /* Include padding and border in element's width */
+        }
+
+        /* Left half of the page */
+        #cpu-utilization {
+            padding: 10px;
+            /* border: 1px solid #555; */
+            width: 50%;
+            box-sizing: border-box;
+            height: fit-content;
+
+        }
+
+        /* Right half of the page */
+        #memory-utilization {
+            padding: 10px;
+            /* border: 1px solid #555; */
+            width: 50%;
+            box-sizing: border-box;
+            height: fit-content;
+        }
+
+        #cpu-overall {
+            margin: 10px 0;
+        }
+
+        .label {
+            display: inline-block;
+            width: 80px;
+        }
+
+        .bar-container {
+            display: inline-block;
+            width: 200px;
+            height: 10px;
+            background-color: #333;
+            margin-right: 10px;
+        }
+
+        .cpu-bar {
+            height: 10px;
+            background-color: #f00;
+        }
+
+        .per-cpu {
+            margin: 10px 0;
+        }
+
+        .per-cpu-label {
+            display: inline-block;
+            width: 80px;
+        }
+
+        .memory-bar {
+            height: 10px;
+        }
+
+        .used {
+            background-color: #f00;
+        }
+
+        .free {
+            background-color: #0f0;
+        }
+
+        #used-memory-bar {
+            width: 50%;
+        }
+
+        #free-memory-bar {
+            width: 50%;
+        }
+
+        #percent-memory-bar {
+            width: 75%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="utilization" class="section">
+        <div id="cpu-utilization" class="section">
+            <h2>CPU Utilization</h2>
+            <div id="cpu-overall">
+                <span class="label">Overall:</span>
+                <div class="bar-container">
+                    <div class="bar cpu-bar" id="cpu-overall-bar"></div>
+                </div>
+                <span id="cpu-overall-label"></span>
+            </div>
+            <ul id="per-cpu-list"></ul>
+        </div>
+        <div id="memory-utilization" class="section">
+            <h2>Memory Utilization</h2>
+            <div>
+                <span class="label">Total:</span>
+                <span id="total-memory"></span>
+            </div>
+            <div>
+                <span class="label">Used / Free:</span>
+                <span id="used-memory"></span> / <span id="available-memory"></span> (<span id="percent-memory"></span>)
+
+            </div>
+            <div class="bar-container">
+                <div class="bar memory-bar used" id="used-memory-bar"></div>
+            </div>
+
+
+        </div>
+    </div>
+    </div>
+    <script>
+        var loc = window.location, new_uri;
+        if (loc.protocol === "https:") {
+            new_uri = "wss:";
+        } else {
+            new_uri = "ws:";
+        }
+        new_uri += "//" + loc.host;
+        new_uri += "/stats.ws";
+        console.log(new_uri)
+        const ws = new WebSocket(new_uri);
+
+        ws.onmessage = function (event) {
+            const data = JSON.parse(event.data);
+            updateCPU(data.cpu);
+            updateMemory(data.memory);
+        };
+
+        function updateCPU(cpu) {
+            const overall = cpu.utilization.overall.toFixed(1);
+            const overallBar = document.querySelector('#cpu-overall-bar');
+            const overallLabel = document.querySelector('#cpu-overall-label');
+            overallBar.style.width = overall + '%';
+            overallLabel.textContent = overall + '%';
+            const perCPUList = document.querySelector('#per-cpu-list');
+            perCPUList.innerHTML = '';
+            cpu.utilization.per_cpu.forEach((utilization, index) => {
+                const li = document.createElement('li');
+                const label = document.createElement('span');
+                label.classList.add('label');
+                label.textContent = `CPU${index}:`;
+                const barContainer = document.createElement('div');
+                barContainer.classList.add('bar-container');
+                const bar = document.createElement('div');
+                bar.classList.add('bar', 'cpu-bar');
+                bar.style.width = `${utilization}%`;
+                barContainer.appendChild(bar);
+                const percentLabel = document.createElement('span')
+                percentLabel.classList.add('cpu-label')
+                percentLabel.textContent = `${utilization}%`
+
+                li.appendChild(label);
+                li.appendChild(barContainer);
+                li.appendChild(percentLabel)
+                perCPUList.appendChild(li);
+            });
+        }
+
+        function updateMemory(memory) {
+            const usedMemory = memory.used;
+            const availableMemory = memory.available;
+            const percentMemory = memory.percent.toFixed(1);
+            const totalMemory = memory.total;
+            const usedMemoryBar = document.querySelector('#used-memory-bar');
+            const usedMemoryLabel = document.querySelector('#used-memory');
+            const availableMemoryLabel = document.querySelector('#available-memory');
+            const percentMemoryLabel = document.querySelector('#percent-memory');
+            const totalMemoryLabel = document.querySelector('#total-memory');
+
+            usedMemoryBar.style.width = `${(usedMemory / totalMemory) * 100}%`;
+            usedMemoryLabel.textContent = `${(usedMemory / 1024 / 1024).toFixed(1)} MB`;
+            availableMemoryLabel.textContent = `${(availableMemory / 1024 / 1024).toFixed(1)} MB`;
+            percentMemoryLabel.textContent = `${percentMemory}%`;
+            totalMemoryLabel.textContent = `${(totalMemory / 1024 / 1024).toFixed(1)} MB`;
+        }
+    </script>
+</body>
+
+</html>

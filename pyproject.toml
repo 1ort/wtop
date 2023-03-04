@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "wtop"
+version = "0.1.0"
+description = ""
+authors = ["Gennady <83316072+1ort@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+psutil = "^5.9.4"
+aiohttp = "^3.8.4"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.1.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
