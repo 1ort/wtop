@@ -1,6 +1,6 @@
 # WTOP
 Wtop is a lightweight web-based system monitor made with Python and aiohttp.
-<br></br>
+![изображение](https://user-images.githubusercontent.com/83316072/222916009-a57a2f9c-fc07-4e10-a420-23f69346f02d.png)
 
 ## endpoints
 
@@ -40,6 +40,8 @@ sample output:
 / or /stats.html
 ```
 The data on the page is updated in real time via a websocket.
+![изображение](https://user-images.githubusercontent.com/83316072/222916024-f6d8c4ae-73ce-4821-999f-eb07a04a099e.png)
+
 
 ### Websocket endpoint
 
