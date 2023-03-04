@@ -1,8 +1,8 @@
-from typing import Dict, Any
-
-from stats import StatCollector
-from aiohttp import web
 import asyncio
+from typing import Any, Dict
+
+from aiohttp import web
+from stats import StatCollector
 
 
 class WebSocketStatsBroadcaster:
