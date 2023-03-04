@@ -1,7 +1,8 @@
-from typing import Any, Dict, NoReturn
-import psutil
 import threading
 import time
+from typing import Any, Dict, NoReturn
+
+import psutil
 
 
 class StatCollector:
@@ -14,7 +15,7 @@ class StatCollector:
         self._cpu_stats = self._get_cpu_stats()
         self._memory_stats = self._get_memory_stats()
 
-    def _get_memory_stats(self) -> Dict:
+    def _get_memory_stats(self) -> Dict[str, Any]:
         vm = psutil.virtual_memory()
         return vm._asdict()
 
@@ -43,13 +44,3 @@ class StatCollector:
 
         thread = threading.Thread(target=threaded, daemon=True)
         thread.start()
-
-
-if __name__ == "__main__":
-    from pprint import pprint
-
-    c = StatCollector()
-    c.run_in_thread()
-    while True:
-        pprint(c.get_stats())
-        time.sleep(1)
