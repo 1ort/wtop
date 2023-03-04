@@ -36,7 +36,7 @@ async def root_handler(request) -> web.HTTPFound:
     return web.HTTPFound("/stats.html")
 
 
-if __name__ == "__main__":
+def run():
     app = web.Application()
     collector = StatCollector()
     broadcaster = WebSocketStatsBroadcaster(collector)
@@ -59,3 +59,7 @@ if __name__ == "__main__":
     app.on_startup.append(_on_startup)
     app.on_cleanup.append(_on_cleanup)
     web.run_app(app)
+
+
+if __name__ == "__main__":
+    run()
