@@ -29,17 +29,21 @@ def websocket_stats_handler(
         await ws.prepare(request)
         subscription.add_client(ws)
         try:
-            async for msg in ws:
-                if msg.type == aiohttp.WSMsgType.TEXT and msg.data == "close":
-                    await ws.close()
-                    break
-                elif msg.type == aiohttp.WSMsgType.ERROR:
-                    break
+            await listen_websocket(ws)
         finally:
             subscription.remove_client(ws)
         return ws
 
     return handler
+
+
+async def listen_websocket(ws: web.WebSocketResponse) -> None:
+    async for msg in ws:
+        if msg.type == aiohttp.WSMsgType.TEXT and msg.data == "close":
+            await ws.close()
+            break
+        elif msg.type == aiohttp.WSMsgType.ERROR:
+            break
 
 
 async def root_handler(request: web.Request) -> web.HTTPFound:
