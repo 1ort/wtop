@@ -31,6 +31,7 @@ def websocket_stats_handler(
         try:
             await listen_websocket(ws)
         finally:
+            await ws.close()
             subscription.remove_client(ws)
         return ws
 
@@ -40,7 +41,6 @@ def websocket_stats_handler(
 async def listen_websocket(ws: web.WebSocketResponse) -> None:
     async for msg in ws:
         if msg.type == aiohttp.WSMsgType.TEXT and msg.data == "close":
-            await ws.close()
             break
         elif msg.type == aiohttp.WSMsgType.ERROR:
             break
